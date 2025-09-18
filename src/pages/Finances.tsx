@@ -13,14 +13,10 @@ import { CardGenerator } from "@/components/finances/CardGenerator";
 import { useAuth } from "@/hooks/useAuth";
 
 const Finances = () => {
-  const { user, hasRole } = useAuth();
+  const { user, canViewFinances, canManageFinances } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
 
-  // Vérifier les permissions d'accès aux finances
-  const canManageFinances = hasRole('ADMIN') || hasRole('TRESORIER');
-  const canViewFinances = canManageFinances || hasRole('RESPONSABLE');
-
-  if (!canViewFinances) {
+  if (!canViewFinances()) {
     return (
       <div className="container mx-auto py-6">
         <Card>
@@ -80,7 +76,7 @@ const Finances = () => {
         </TabsContent>
 
         <TabsContent value="contributions" className="space-y-6">
-          <ContributionsManager canManage={canManageFinances} />
+          <ContributionsManager canManage={canManageFinances()} />
         </TabsContent>
 
         <TabsContent value="statistics" className="space-y-6">

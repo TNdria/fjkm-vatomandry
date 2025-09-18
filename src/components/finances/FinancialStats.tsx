@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DollarSign, TrendingUp, Users, Calendar } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+import { toast } from "@/hooks/use-toast";
 
 interface FinancialStatsData {
   totalAnnual: number;
@@ -107,7 +107,11 @@ export const FinancialStats = () => {
       });
 
     } catch (error: any) {
-      toast.error("Erreur lors du chargement des statistiques");
+      toast({
+        title: "Erreur",
+        description: "Erreur lors du chargement des statistiques financières",
+        variant: "destructive"
+      });
       console.error(error);
     } finally {
       setLoading(false);

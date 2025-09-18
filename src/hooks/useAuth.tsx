@@ -13,7 +13,11 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   isAdmin: boolean;
   isResponsable: boolean;
-  hasRole: (role: string) => boolean;
+  hasRole: (role: string | string[]) => boolean;
+  canManageFinances: () => boolean;
+  canManageAdherents: () => boolean;
+  canViewFinances: () => boolean;
+  canManageUsers: () => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -28,8 +32,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const isAdmin = userRole === 'ADMIN';
   const isResponsable = userRole === 'RESPONSABLE';
 
-  const hasRole = (role: string) => {
+  const hasRole = (role: string | string[]) => {
+    if (Array.isArray(role)) {
+      return role.includes(userRole || '');
+    }
     return userRole === role;
+  };
+
+  const canManageFinances = () => {
+    return hasRole(['ADMIN', 'TRESORIER']);
+  };
+
+  const canManageAdherents = () => {
+    return hasRole(['ADMIN', 'RESPONSABLE', 'SECRETAIRE']);
+  };
+
+  const canViewFinances = () => {
+    return hasRole(['ADMIN', 'TRESORIER', 'RESPONSABLE']);
+  };
+
+  const canManageUsers = () => {
+    return hasRole('ADMIN');
   };
 
   useEffect(() => {
@@ -188,6 +211,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isAdmin,
     isResponsable,
     hasRole,
+    canManageFinances,
+    canManageAdherents,
+    canViewFinances,
+    canManageUsers,
   };
 
   return (

@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { PlusCircle, Search, Edit, Trash2 } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+import { toast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
@@ -74,7 +74,11 @@ export const ContributionsManager = ({ canManage }: ContributionsManagerProps) =
         adherent: item.adherents
       })) || []);
     } catch (error: any) {
-      toast.error("Erreur lors du chargement des contributions");
+      toast({
+        title: "Erreur",
+        description: "Erreur lors du chargement des contributions",
+        variant: "destructive"
+      });
       console.error(error);
     } finally {
       setLoading(false);
@@ -91,7 +95,11 @@ export const ContributionsManager = ({ canManage }: ContributionsManagerProps) =
       if (error) throw error;
       setAdherents(data || []);
     } catch (error: any) {
-      toast.error("Erreur lors du chargement des adhérents");
+      toast({
+        title: "Erreur", 
+        description: "Erreur lors du chargement des adhérents",
+        variant: "destructive"
+      });
       console.error(error);
     }
   };
@@ -111,7 +119,10 @@ export const ContributionsManager = ({ canManage }: ContributionsManagerProps) =
 
       if (error) throw error;
 
-      toast.success("Contribution ajoutée avec succès");
+      toast({
+        title: "Succès",
+        description: "Contribution ajoutée avec succès"
+      });
       setShowAddDialog(false);
       setFormData({
         adherent_id: "",
@@ -121,7 +132,11 @@ export const ContributionsManager = ({ canManage }: ContributionsManagerProps) =
       });
       fetchContributions();
     } catch (error: any) {
-      toast.error("Erreur lors de l'ajout de la contribution");
+      toast({
+        title: "Erreur",
+        description: "Erreur lors de l'ajout de la contribution",
+        variant: "destructive"
+      });
       console.error(error);
     }
   };
@@ -137,10 +152,17 @@ export const ContributionsManager = ({ canManage }: ContributionsManagerProps) =
 
       if (error) throw error;
 
-      toast.success("Contribution supprimée");
+      toast({
+        title: "Suppression",
+        description: "Contribution supprimée avec succès"
+      });
       fetchContributions();
     } catch (error: any) {
-      toast.error("Erreur lors de la suppression");
+      toast({
+        title: "Erreur",
+        description: "Erreur lors de la suppression",
+        variant: "destructive"
+      });
       console.error(error);
     }
   };

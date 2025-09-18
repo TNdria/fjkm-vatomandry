@@ -10,24 +10,24 @@ export default function Admin() {
 
   return (
     <AdminRoute>
-      <div className="container mx-auto px-4 py-4 md:py-6 space-y-4 md:space-y-6">
+      <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-foreground">Administration</h1>
-            <p className="text-sm md:text-base text-muted-foreground mt-1 md:mt-2">
+            <h1 className="text-3xl font-bold text-foreground">Administration</h1>
+            <p className="text-muted-foreground">
               Panneau d'administration pour la gestion du système
             </p>
           </div>
           <div className="flex items-center space-x-2">
             <Shield className="h-4 w-4 text-primary" />
-            <span className="text-xs md:text-sm text-muted-foreground font-medium">
+            <span className="text-sm text-muted-foreground font-medium">
               Accès administrateur
             </span>
           </div>
         </div>
 
-        <Tabs defaultValue="users" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 gap-1">
+        <Tabs defaultValue="users" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4">
             <TabsTrigger value="users" className="flex items-center gap-1 md:gap-2 text-xs md:text-sm">
               <Users className="h-3 w-3 md:h-4 md:w-4" />
               <span className="hidden sm:inline">Utilisateurs</span>
@@ -49,19 +49,19 @@ export default function Admin() {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="users">
+          <TabsContent value="users" className="space-y-6">
             <UsersManagement />
           </TabsContent>
 
-          <TabsContent value="roles">
+          <TabsContent value="roles" className="space-y-6">
             <RolesManagement />
           </TabsContent>
 
-          <TabsContent value="settings">
+          <TabsContent value="settings" className="space-y-6">
             <SystemSettings />
           </TabsContent>
 
-          <TabsContent value="database">
+          <TabsContent value="database" className="space-y-6">
             <DatabaseManagement />
           </TabsContent>
         </Tabs>

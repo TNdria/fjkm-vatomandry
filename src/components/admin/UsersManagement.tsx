@@ -56,9 +56,10 @@ export function UsersManagement() {
 
       setUsers(formattedUsers);
     } catch (error: any) {
+      console.error('Error fetching users:', error);
       toast({
         title: "Erreur",
-        description: "Impossible de charger les utilisateurs.",
+        description: `Impossible de charger les utilisateurs: ${error.message || 'Erreur inconnue'}`,
         variant: "destructive",
       });
     } finally {
@@ -70,10 +71,28 @@ export function UsersManagement() {
     try {
       setUpdatingRole(userId);
       
-      const { error } = await supabase
+      // Vérifier si le rôle existe déjà
+      const { data: existingRole, error: checkError } = await supabase
         .from('user_roles')
-        .update({ role: newRole })
-        .eq('user_id', userId);
+        .select('id')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (checkError) throw checkError;
+
+      let error;
+      if (existingRole) {
+        // Mettre à jour le rôle existant
+        ({ error } = await supabase
+          .from('user_roles')
+          .update({ role: newRole })
+          .eq('user_id', userId));
+      } else {
+        // Créer un nouveau rôle
+        ({ error } = await supabase
+          .from('user_roles')
+          .insert({ user_id: userId, role: newRole }));
+      }
 
       if (error) throw error;
 
@@ -82,11 +101,17 @@ export function UsersManagement() {
         description: `Le rôle a été changé vers ${newRole}.`,
       });
 
-      fetchUsers();
+      // Mettre à jour l'état local au lieu de refetch complet
+      setUsers(prevUsers => 
+        prevUsers.map(user => 
+          user.user_id === userId ? { ...user, role: newRole } : user
+        )
+      );
     } catch (error: any) {
+      console.error('Error updating role:', error);
       toast({
         title: "Erreur",
-        description: "Impossible de mettre à jour le rôle.",
+        description: `Impossible de mettre à jour le rôle: ${error.message || 'Erreur inconnue'}`,
         variant: "destructive",
       });
     } finally {

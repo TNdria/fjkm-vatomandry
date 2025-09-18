@@ -257,11 +257,45 @@ export const useNotificationListener = () => {
       )
       .subscribe();
 
+    // Listen for user roles changes
+    const userRolesChannel = supabase
+      .channel('user-roles-changes')
+      .on('postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'user_roles'
+        },
+        () => {
+          addNotification({
+            type: 'info',
+            title: 'Rôle utilisateur modifié',
+            message: 'Un rôle d\'utilisateur a été mis à jour.'
+          });
+        }
+      )
+      .on('postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'user_roles'
+        },
+        () => {
+          addNotification({
+            type: 'success',
+            title: 'Nouveau rôle assigné',
+            message: 'Un nouveau rôle a été assigné à un utilisateur.'
+          });
+        }
+      )
+      .subscribe();
+
     return () => {
       supabase.removeChannel(adherentsChannel);
       supabase.removeChannel(contributionsChannel);
       supabase.removeChannel(groupesChannel);
       supabase.removeChannel(settingsChannel);
+      supabase.removeChannel(userRolesChannel);
     };
   }, [addNotification]);
 };
