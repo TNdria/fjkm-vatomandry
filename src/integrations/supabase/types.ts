@@ -14,549 +14,231 @@ export type Database = {
   }
   public: {
     Tables: {
-      admin_notifications: {
+      adherents: {
         Row: {
-          created_at: string
-          data: Json | null
-          id: string
-          message: string
-          read: boolean
-          title: string
-          type: string
-        }
-        Insert: {
-          created_at?: string
-          data?: Json | null
-          id?: string
-          message: string
-          read?: boolean
-          title: string
-          type: string
-        }
-        Update: {
-          created_at?: string
-          data?: Json | null
-          id?: string
-          message?: string
-          read?: boolean
-          title?: string
-          type?: string
-        }
-        Relationships: []
-      }
-      avis: {
-        Row: {
-          client_id: string
-          commentaire: string | null
-          created_at: string
-          id: string
-          note: number
-          prestataire_id: string
-          reservation_id: string
-        }
-        Insert: {
-          client_id: string
-          commentaire?: string | null
-          created_at?: string
-          id?: string
-          note: number
-          prestataire_id: string
-          reservation_id: string
-        }
-        Update: {
-          client_id?: string
-          commentaire?: string | null
-          created_at?: string
-          id?: string
-          note?: number
-          prestataire_id?: string
-          reservation_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "avis_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "avis_prestataire_id_fkey"
-            columns: ["prestataire_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "avis_reservation_id_fkey"
-            columns: ["reservation_id"]
-            isOneToOne: false
-            referencedRelation: "reservations"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      categories: {
-        Row: {
-          active: boolean
-          created_at: string
-          description: string | null
-          icon_url: string | null
-          id: string
+          adresse: string | null
+          created_at: string | null
+          date_inscription: string
+          date_naissance: string | null
+          email: string | null
+          fonction_eglise: string | null
+          id_adherent: string
           nom: string
+          prenom: string
+          quartier: string | null
+          sexe: Database["public"]["Enums"]["sexe"]
+          telephone: string | null
+          updated_at: string | null
         }
         Insert: {
-          active?: boolean
-          created_at?: string
-          description?: string | null
-          icon_url?: string | null
-          id?: string
+          adresse?: string | null
+          created_at?: string | null
+          date_inscription?: string
+          date_naissance?: string | null
+          email?: string | null
+          fonction_eglise?: string | null
+          id_adherent?: string
           nom: string
+          prenom: string
+          quartier?: string | null
+          sexe: Database["public"]["Enums"]["sexe"]
+          telephone?: string | null
+          updated_at?: string | null
         }
         Update: {
-          active?: boolean
-          created_at?: string
-          description?: string | null
-          icon_url?: string | null
-          id?: string
+          adresse?: string | null
+          created_at?: string | null
+          date_inscription?: string
+          date_naissance?: string | null
+          email?: string | null
+          fonction_eglise?: string | null
+          id_adherent?: string
           nom?: string
+          prenom?: string
+          quartier?: string | null
+          sexe?: Database["public"]["Enums"]["sexe"]
+          telephone?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }
-      paiements: {
+      adherents_groupes: {
         Row: {
-          created_at: string
-          date_paiement: string | null
-          id: string
-          methode_paiement: string
-          montant: number
-          reservation_id: string
-          status: Database["public"]["Enums"]["payment_status"]
-          transaction_id: string | null
+          created_at: string | null
+          date_adhesion: string
+          id_adherent: string
+          id_groupe: string
         }
         Insert: {
-          created_at?: string
-          date_paiement?: string | null
-          id?: string
-          methode_paiement: string
-          montant: number
-          reservation_id: string
-          status?: Database["public"]["Enums"]["payment_status"]
-          transaction_id?: string | null
+          created_at?: string | null
+          date_adhesion?: string
+          id_adherent: string
+          id_groupe: string
         }
         Update: {
-          created_at?: string
-          date_paiement?: string | null
-          id?: string
-          methode_paiement?: string
-          montant?: number
-          reservation_id?: string
-          status?: Database["public"]["Enums"]["payment_status"]
-          transaction_id?: string | null
+          created_at?: string | null
+          date_adhesion?: string
+          id_adherent?: string
+          id_groupe?: string
         }
         Relationships: [
           {
-            foreignKeyName: "paiements_reservation_id_fkey"
-            columns: ["reservation_id"]
+            foreignKeyName: "adherents_groupes_id_adherent_fkey"
+            columns: ["id_adherent"]
             isOneToOne: false
-            referencedRelation: "reservations"
-            referencedColumns: ["id"]
+            referencedRelation: "adherents"
+            referencedColumns: ["id_adherent"]
+          },
+          {
+            foreignKeyName: "adherents_groupes_id_groupe_fkey"
+            columns: ["id_groupe"]
+            isOneToOne: false
+            referencedRelation: "groupes"
+            referencedColumns: ["id_groupe"]
           },
         ]
+      }
+      contributions: {
+        Row: {
+          adherent_id: string
+          created_at: string
+          date_contribution: string
+          id: string
+          montant: number
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          adherent_id: string
+          created_at?: string
+          date_contribution?: string
+          id?: string
+          montant: number
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          adherent_id?: string
+          created_at?: string
+          date_contribution?: string
+          id?: string
+          montant?: number
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_contributions_adherent"
+            columns: ["adherent_id"]
+            isOneToOne: false
+            referencedRelation: "adherents"
+            referencedColumns: ["id_adherent"]
+          },
+        ]
+      }
+      groupes: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id_groupe: string
+          nom_groupe: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id_groupe?: string
+          nom_groupe: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id_groupe?: string
+          nom_groupe?: string
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
-          account_status: string | null
-          adresse: string | null
-          cin: string | null
-          commune: string | null
-          created_at: string
-          email: string
-          fokontany: string | null
+          created_at: string | null
           id: string
-          interview_notes: string | null
-          nom: string
-          photo_url: string | null
-          prenom: string
-          region: string | null
-          rejected_reason: string | null
-          role: Database["public"]["Enums"]["user_role"]
-          solde_portefeuille: number | null
-          telephone: string | null
-          updated_at: string
-          validation_date: string | null
-          wallet_balance: number | null
+          id_adherent: string | null
+          updated_at: string | null
+          user_id: string
+          username: string
         }
         Insert: {
-          account_status?: string | null
-          adresse?: string | null
-          cin?: string | null
-          commune?: string | null
-          created_at?: string
-          email: string
-          fokontany?: string | null
-          id: string
-          interview_notes?: string | null
-          nom: string
-          photo_url?: string | null
-          prenom: string
-          region?: string | null
-          rejected_reason?: string | null
-          role?: Database["public"]["Enums"]["user_role"]
-          solde_portefeuille?: number | null
-          telephone?: string | null
-          updated_at?: string
-          validation_date?: string | null
-          wallet_balance?: number | null
+          created_at?: string | null
+          id?: string
+          id_adherent?: string | null
+          updated_at?: string | null
+          user_id: string
+          username: string
         }
         Update: {
-          account_status?: string | null
-          adresse?: string | null
-          cin?: string | null
-          commune?: string | null
-          created_at?: string
-          email?: string
-          fokontany?: string | null
+          created_at?: string | null
           id?: string
-          interview_notes?: string | null
-          nom?: string
-          photo_url?: string | null
-          prenom?: string
-          region?: string | null
-          rejected_reason?: string | null
-          role?: Database["public"]["Enums"]["user_role"]
-          solde_portefeuille?: number | null
-          telephone?: string | null
-          updated_at?: string
-          validation_date?: string | null
-          wallet_balance?: number | null
-        }
-        Relationships: []
-      }
-      reservations: {
-        Row: {
-          adresse_intervention: string
-          client_id: string
-          created_at: string
-          date_debut: string
-          date_fin: string
-          id: string
-          instructions_speciales: string | null
-          prestataire_id: string
-          prix_total: number
-          service_id: string
-          status: Database["public"]["Enums"]["reservation_status"]
-          updated_at: string
-        }
-        Insert: {
-          adresse_intervention: string
-          client_id: string
-          created_at?: string
-          date_debut: string
-          date_fin: string
-          id?: string
-          instructions_speciales?: string | null
-          prestataire_id: string
-          prix_total: number
-          service_id: string
-          status?: Database["public"]["Enums"]["reservation_status"]
-          updated_at?: string
-        }
-        Update: {
-          adresse_intervention?: string
-          client_id?: string
-          created_at?: string
-          date_debut?: string
-          date_fin?: string
-          id?: string
-          instructions_speciales?: string | null
-          prestataire_id?: string
-          prix_total?: number
-          service_id?: string
-          status?: Database["public"]["Enums"]["reservation_status"]
-          updated_at?: string
+          id_adherent?: string | null
+          updated_at?: string | null
+          user_id?: string
+          username?: string
         }
         Relationships: [
           {
-            foreignKeyName: "reservations_client_id_fkey"
-            columns: ["client_id"]
+            foreignKeyName: "profiles_id_adherent_fkey"
+            columns: ["id_adherent"]
             isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "reservations_prestataire_id_fkey"
-            columns: ["prestataire_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "reservations_service_id_fkey"
-            columns: ["service_id"]
-            isOneToOne: false
-            referencedRelation: "services"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      services: {
-        Row: {
-          category_id: string
-          created_at: string
-          description: string
-          disponibilites: Json | null
-          duree_min: number | null
-          id: string
-          nombre_avis: number | null
-          note_moyenne: number | null
-          photos: Json | null
-          prestataire_id: string
-          prix_forfait: number | null
-          prix_par_heure: number
-          status: Database["public"]["Enums"]["service_status"]
-          titre: string
-          updated_at: string
-          zone_intervention: string
-        }
-        Insert: {
-          category_id: string
-          created_at?: string
-          description: string
-          disponibilites?: Json | null
-          duree_min?: number | null
-          id?: string
-          nombre_avis?: number | null
-          note_moyenne?: number | null
-          photos?: Json | null
-          prestataire_id: string
-          prix_forfait?: number | null
-          prix_par_heure: number
-          status?: Database["public"]["Enums"]["service_status"]
-          titre: string
-          updated_at?: string
-          zone_intervention: string
-        }
-        Update: {
-          category_id?: string
-          created_at?: string
-          description?: string
-          disponibilites?: Json | null
-          duree_min?: number | null
-          id?: string
-          nombre_avis?: number | null
-          note_moyenne?: number | null
-          photos?: Json | null
-          prestataire_id?: string
-          prix_forfait?: number | null
-          prix_par_heure?: number
-          status?: Database["public"]["Enums"]["service_status"]
-          titre?: string
-          updated_at?: string
-          zone_intervention?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "services_category_id_fkey"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "categories"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "services_prestataire_id_fkey"
-            columns: ["prestataire_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
+            referencedRelation: "adherents"
+            referencedColumns: ["id_adherent"]
           },
         ]
       }
       system_settings: {
         Row: {
-          auto_backup: boolean
-          backup_frequency: string
-          cache_enabled: boolean
-          cdn_enabled: boolean
-          compression_enabled: boolean
-          created_at: string
-          data_retention: number
-          email_notifications: boolean
+          description: string | null
           id: string
-          language: string
-          login_attempts: number
-          maintenance: boolean
-          password_complexity: string
-          push_notifications: boolean
-          session_timeout: number
-          site_name: string
-          sms_notifications: boolean
-          timezone: string
-          two_factor_required: boolean
-          updated_at: string
+          key: string
+          updated_at: string | null
+          updated_by: string | null
+          value: Json
         }
         Insert: {
-          auto_backup?: boolean
-          backup_frequency?: string
-          cache_enabled?: boolean
-          cdn_enabled?: boolean
-          compression_enabled?: boolean
-          created_at?: string
-          data_retention?: number
-          email_notifications?: boolean
+          description?: string | null
           id?: string
-          language?: string
-          login_attempts?: number
-          maintenance?: boolean
-          password_complexity?: string
-          push_notifications?: boolean
-          session_timeout?: number
-          site_name?: string
-          sms_notifications?: boolean
-          timezone?: string
-          two_factor_required?: boolean
-          updated_at?: string
+          key: string
+          updated_at?: string | null
+          updated_by?: string | null
+          value: Json
         }
         Update: {
-          auto_backup?: boolean
-          backup_frequency?: string
-          cache_enabled?: boolean
-          cdn_enabled?: boolean
-          compression_enabled?: boolean
-          created_at?: string
-          data_retention?: number
-          email_notifications?: boolean
+          description?: string | null
           id?: string
-          language?: string
-          login_attempts?: number
-          maintenance?: boolean
-          password_complexity?: string
-          push_notifications?: boolean
-          session_timeout?: number
-          site_name?: string
-          sms_notifications?: boolean
-          timezone?: string
-          two_factor_required?: boolean
-          updated_at?: string
+          key?: string
+          updated_at?: string | null
+          updated_by?: string | null
+          value?: Json
         }
         Relationships: []
       }
-      transactions: {
+      user_roles: {
         Row: {
-          created_at: string
-          description: string
+          created_at: string | null
           id: string
-          montant: number
-          statut: string
-          type: string
+          role: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
         Insert: {
-          created_at?: string
-          description: string
+          created_at?: string | null
           id?: string
-          montant: number
-          statut?: string
-          type: string
+          role?: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
         Update: {
-          created_at?: string
-          description?: string
+          created_at?: string | null
           id?: string
-          montant?: number
-          statut?: string
-          type?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      wallet_requests: {
-        Row: {
-          admin_notes: string | null
-          amount: number
-          created_at: string
-          description: string | null
-          id: string
-          processed_at: string | null
-          processed_by: string | null
-          reference: string | null
-          status: string
-          type: string
-          user_id: string
-        }
-        Insert: {
-          admin_notes?: string | null
-          amount: number
-          created_at?: string
-          description?: string | null
-          id?: string
-          processed_at?: string | null
-          processed_by?: string | null
-          reference?: string | null
-          status?: string
-          type: string
-          user_id: string
-        }
-        Update: {
-          admin_notes?: string | null
-          amount?: number
-          created_at?: string
-          description?: string | null
-          id?: string
-          processed_at?: string | null
-          processed_by?: string | null
-          reference?: string | null
-          status?: string
-          type?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "fk_admin"
-            columns: ["processed_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "fk_user"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      wallet_transactions: {
-        Row: {
-          amount: number
-          description: string | null
-          id: string
-          related_reservation_id: string | null
-          status: string | null
-          transaction_date: string
-          type: string
-          user_id: string
-        }
-        Insert: {
-          amount: number
-          description?: string | null
-          id?: string
-          related_reservation_id?: string | null
-          status?: string | null
-          transaction_date?: string
-          type: string
-          user_id: string
-        }
-        Update: {
-          amount?: number
-          description?: string | null
-          id?: string
-          related_reservation_id?: string | null
-          status?: string | null
-          transaction_date?: string
-          type?: string
+          role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
         }
         Relationships: []
@@ -566,31 +248,35 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      create_admin_notification: {
+      get_user_role: {
+        Args: { _user_id: string }
+        Returns: Database["public"]["Enums"]["app_role"]
+      }
+      has_role: {
         Args: {
-          notification_data?: Json
-          notification_message: string
-          notification_title: string
-          notification_type: string
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
         }
-        Returns: string
+        Returns: boolean
       }
       is_admin: {
-        Args: Record<PropertyKey, never>
+        Args: { _user_id: string }
+        Returns: boolean
+      }
+      is_admin_or_responsable: {
+        Args: { _user_id: string }
         Returns: boolean
       }
     }
     Enums: {
-      payment_status: "pending" | "paid" | "failed" | "refunded"
-      reservation_status:
-        | "pending"
-        | "confirmed"
-        | "in_progress"
-        | "completed"
-        | "cancelled"
-        | "admin_validation"
-      service_status: "active" | "inactive" | "suspended"
-      user_role: "admin" | "client" | "prestataire"
+      app_role:
+        | "ADMIN"
+        | "RESPONSABLE"
+        | "UTILISATEUR"
+        | "SECRETAIRE"
+        | "TRESORIER"
+        | "MEMBRE"
+      sexe: "M" | "F"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -718,17 +404,15 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      payment_status: ["pending", "paid", "failed", "refunded"],
-      reservation_status: [
-        "pending",
-        "confirmed",
-        "in_progress",
-        "completed",
-        "cancelled",
-        "admin_validation",
+      app_role: [
+        "ADMIN",
+        "RESPONSABLE",
+        "UTILISATEUR",
+        "SECRETAIRE",
+        "TRESORIER",
+        "MEMBRE",
       ],
-      service_status: ["active", "inactive", "suspended"],
-      user_role: ["admin", "client", "prestataire"],
+      sexe: ["M", "F"],
     },
   },
 } as const
