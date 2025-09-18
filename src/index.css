@@ -163,6 +163,16 @@ All colors MUST be HSL.
   .slide-up {
     animation: slideUp 0.8s ease-out forwards;
   }
+  
+  /* Hover scale animation */
+  .hover-scale {
+    transition: var(--transition-smooth);
+  }
+  
+  .hover-scale:hover {
+    transform: scale(1.02);
+    box-shadow: var(--shadow-elegant);
+  }
 }
 
 @layer utilities {
