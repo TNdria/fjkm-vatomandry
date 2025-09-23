@@ -21,11 +21,15 @@ export type Database = {
           date_inscription: string
           date_naissance: string | null
           email: string | null
+          etat_civil: Database["public"]["Enums"]["etat_civil"] | null
+          faritra: Database["public"]["Enums"]["faritra"] | null
           fonction_eglise: string | null
           id_adherent: string
+          mpandray: boolean | null
           nom: string
           prenom: string
           quartier: string | null
+          sampana_id: string | null
           sexe: Database["public"]["Enums"]["sexe"]
           telephone: string | null
           updated_at: string | null
@@ -36,11 +40,15 @@ export type Database = {
           date_inscription?: string
           date_naissance?: string | null
           email?: string | null
+          etat_civil?: Database["public"]["Enums"]["etat_civil"] | null
+          faritra?: Database["public"]["Enums"]["faritra"] | null
           fonction_eglise?: string | null
           id_adherent?: string
+          mpandray?: boolean | null
           nom: string
           prenom: string
           quartier?: string | null
+          sampana_id?: string | null
           sexe: Database["public"]["Enums"]["sexe"]
           telephone?: string | null
           updated_at?: string | null
@@ -51,16 +59,28 @@ export type Database = {
           date_inscription?: string
           date_naissance?: string | null
           email?: string | null
+          etat_civil?: Database["public"]["Enums"]["etat_civil"] | null
+          faritra?: Database["public"]["Enums"]["faritra"] | null
           fonction_eglise?: string | null
           id_adherent?: string
+          mpandray?: boolean | null
           nom?: string
           prenom?: string
           quartier?: string | null
+          sampana_id?: string | null
           sexe?: Database["public"]["Enums"]["sexe"]
           telephone?: string | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "adherents_sampana_id_fkey"
+            columns: ["sampana_id"]
+            isOneToOne: false
+            referencedRelation: "sampana"
+            referencedColumns: ["id_sampana"]
+          },
+        ]
       }
       adherents_groupes: {
         Row: {
@@ -95,6 +115,50 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "groupes"
             referencedColumns: ["id_groupe"]
+          },
+        ]
+      }
+      adidy: {
+        Row: {
+          adherent_id: string
+          annee: number
+          created_at: string | null
+          date_paiement: string | null
+          id: string
+          mois: number
+          montant: number
+          paye: boolean | null
+          updated_at: string | null
+        }
+        Insert: {
+          adherent_id: string
+          annee: number
+          created_at?: string | null
+          date_paiement?: string | null
+          id?: string
+          mois: number
+          montant?: number
+          paye?: boolean | null
+          updated_at?: string | null
+        }
+        Update: {
+          adherent_id?: string
+          annee?: number
+          created_at?: string | null
+          date_paiement?: string | null
+          id?: string
+          mois?: number
+          montant?: number
+          paye?: boolean | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "adidy_adherent_id_fkey"
+            columns: ["adherent_id"]
+            isOneToOne: false
+            referencedRelation: "adherents"
+            referencedColumns: ["id_adherent"]
           },
         ]
       }
@@ -195,6 +259,30 @@ export type Database = {
           },
         ]
       }
+      sampana: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id_sampana: string
+          nom_sampana: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id_sampana?: string
+          nom_sampana: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id_sampana?: string
+          nom_sampana?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       system_settings: {
         Row: {
           description: string | null
@@ -276,6 +364,8 @@ export type Database = {
         | "SECRETAIRE"
         | "TRESORIER"
         | "MEMBRE"
+      etat_civil: "celibataire" | "marie" | "veuf"
+      faritra: "voalohany" | "faharoa" | "fahatelo" | "fahefatra" | "fahadimy"
       sexe: "M" | "F"
     }
     CompositeTypes: {
@@ -412,6 +502,8 @@ export const Constants = {
         "TRESORIER",
         "MEMBRE",
       ],
+      etat_civil: ["celibataire", "marie", "veuf"],
+      faritra: ["voalohany", "faharoa", "fahatelo", "fahefatra", "fahadimy"],
       sexe: ["M", "F"],
     },
   },

@@ -18,6 +18,10 @@ interface Adherent {
   email: string;
   fonction_eglise: string;
   date_inscription: string;
+  etat_civil: string | null;
+  mpandray: boolean;
+  faritra: string | null;
+  sampana_id: string | null;
 }
 
 const Adherents = () => {

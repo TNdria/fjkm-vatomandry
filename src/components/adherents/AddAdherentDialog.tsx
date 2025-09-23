@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Checkbox } from '@/components/ui/checkbox';
 import { CalendarIcon, Plus } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -18,12 +19,36 @@ interface AddAdherentDialogProps {
   groupes: any[];
 }
 
+interface Sampana {
+  id_sampana: string;
+  nom_sampana: string;
+}
+
 export function AddAdherentDialog({ onAdherentAdded, groupes }: AddAdherentDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [dateNaissance, setDateNaissance] = useState<Date | undefined>();
   const [selectedGroupes, setSelectedGroupes] = useState<string[]>([]);
+  const [sampanas, setSampanas] = useState<Sampana[]>([]);
+  const [mpandray, setMpandray] = useState(false);
   const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchSampanas = async () => {
+      const { data, error } = await supabase
+        .from("sampana")
+        .select("id_sampana, nom_sampana")
+        .order("nom_sampana");
+      
+      if (!error && data) {
+        setSampanas(data);
+      }
+    };
+
+    if (open) {
+      fetchSampanas();
+    }
+  }, [open]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -77,11 +102,15 @@ export function AddAdherentDialog({ onAdherentAdded, groupes }: AddAdherentDialo
         telephone: (formData.get('telephone') as string)?.trim() || null,
         email: (formData.get('email') as string)?.trim() || null,
         fonction_eglise: (formData.get('fonction_eglise') as string)?.trim() || null,
-      };
+        etat_civil: (formData.get('etat_civil') as string) || null,
+        mpandray: mpandray,
+        faritra: (formData.get('faritra') as string) || null,
+        sampana_id: (formData.get('sampana_id') as string) || null,
+      } as any;
 
       const { data: adherent, error: adherentError } = await supabase
         .from('adherents')
-        .insert(adherentData)
+        .insert([adherentData])
         .select()
         .single();
 
@@ -115,6 +144,7 @@ export function AddAdherentDialog({ onAdherentAdded, groupes }: AddAdherentDialo
       }
       setDateNaissance(undefined);
       setSelectedGroupes([]);
+      setMpandray(false);
     } catch (error: any) {
       toast({
         title: "Erreur",
@@ -222,7 +252,80 @@ export function AddAdherentDialog({ onAdherentAdded, groupes }: AddAdherentDialo
 
             <div className="space-y-2">
               <Label htmlFor="fonction_eglise">Fonction dans l'église</Label>
-              <Input id="fonction_eglise" name="fonction_eglise" className="transition-smooth" />
+              <Select name="fonction_eglise">
+                <SelectTrigger>
+                  <SelectValue placeholder="Sélectionner une fonction" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Pasteur">Pasteur</SelectItem>
+                  <SelectItem value="Tresorier">Trésorier</SelectItem>
+                  <SelectItem value="Secretaire">Secrétaire</SelectItem>
+                  <SelectItem value="Diakona">Diacre</SelectItem>
+                  <SelectItem value="Loholona">Ancien</SelectItem>
+                  <SelectItem value="Membre">Membre</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="etat_civil">État civil</Label>
+              <Select name="etat_civil">
+                <SelectTrigger>
+                  <SelectValue placeholder="Sélectionner l'état civil" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="celibataire">Célibataire</SelectItem>
+                  <SelectItem value="marie">Marié(e)</SelectItem>
+                  <SelectItem value="veuf">Veuf/Veuve</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="faritra">Faritra</Label>
+              <Select name="faritra">
+                <SelectTrigger>
+                  <SelectValue placeholder="Sélectionner le faritra" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="voalohany">Voalohany</SelectItem>
+                  <SelectItem value="faharoa">Faharoa</SelectItem>
+                  <SelectItem value="fahatelo">Fahatelo</SelectItem>
+                  <SelectItem value="fahefatra">Fahefatra</SelectItem>
+                  <SelectItem value="fahadimy">Fahadimy</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="sampana_id">Sampana</Label>
+              <Select name="sampana_id">
+                <SelectTrigger>
+                  <SelectValue placeholder="Sélectionner un sampana" />
+                </SelectTrigger>
+                <SelectContent>
+                  {sampanas.map((sampana) => (
+                    <SelectItem key={sampana.id_sampana} value={sampana.id_sampana}>
+                      {sampana.nom_sampana}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2 flex items-center">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="mpandray"
+                  checked={mpandray}
+                  onCheckedChange={(checked) => setMpandray(checked as boolean)}
+                />
+                <Label htmlFor="mpandray">Mpandray</Label>
+              </div>
             </div>
           </div>
 

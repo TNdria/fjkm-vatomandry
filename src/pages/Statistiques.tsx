@@ -2,14 +2,18 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
-import { Users, TrendingUp, Activity, Calendar } from "lucide-react";
+import { Users, TrendingUp, Activity, Calendar, UserCheck } from "lucide-react";
 
 interface Stats {
   totalAdherents: number;
   nouveauxMembres: number;
   groupesActifs: number;
+  mpandrayTotal: number;
   repartitionGenre: { name: string; value: number }[];
+  repartitionEtatCivil: { name: string; value: number }[];
+  repartitionFaritra: { name: string; value: number }[];
   quartierStats: { quartier: string; count: number }[];
+  sampanaStats: { sampana: string; count: number }[];
   monthlyStats: { month: string; count: number }[];
 }
 
@@ -18,8 +22,12 @@ export default function Statistiques() {
     totalAdherents: 0,
     nouveauxMembres: 0,
     groupesActifs: 0,
+    mpandrayTotal: 0,
     repartitionGenre: [],
+    repartitionEtatCivil: [],
+    repartitionFaritra: [],
     quartierStats: [],
+    sampanaStats: [],
     monthlyStats: []
   });
   const [loading, setLoading] = useState(true);
@@ -48,6 +56,12 @@ export default function Statistiques() {
         .from('groupes')
         .select('*', { count: 'exact', head: true });
 
+      // Total Mpandray
+      const { count: mpandrayTotal } = await supabase
+        .from('adherents')
+        .select('*', { count: 'exact', head: true })
+        .eq('mpandray', true);
+
       // Répartition par genre
       const { data: genreData } = await supabase
         .from('adherents')
@@ -57,6 +71,60 @@ export default function Statistiques() {
         { name: 'Hommes', value: genreData?.filter(a => a.sexe === 'M').length || 0 },
         { name: 'Femmes', value: genreData?.filter(a => a.sexe === 'F').length || 0 }
       ];
+
+      // Répartition par état civil
+      const { data: etatCivilData } = await supabase
+        .from('adherents')
+        .select('etat_civil');
+
+      const etatCivilCounts: { [key: string]: number } = {};
+      etatCivilData?.forEach(item => {
+        if (item.etat_civil) {
+          etatCivilCounts[item.etat_civil] = (etatCivilCounts[item.etat_civil] || 0) + 1;
+        }
+      });
+
+      const repartitionEtatCivil = Object.entries(etatCivilCounts)
+        .map(([etat, count]) => ({ 
+          name: etat === 'marie' ? 'Marié(e)' : etat === 'celibataire' ? 'Célibataire' : 'Veuf/Veuve', 
+          value: count 
+        }));
+
+      // Répartition par faritra
+      const { data: faritarData } = await supabase
+        .from('adherents')
+        .select('faritra');
+
+      const faritarCounts: { [key: string]: number } = {};
+      faritarData?.forEach(item => {
+        if (item.faritra) {
+          faritarCounts[item.faritra] = (faritarCounts[item.faritra] || 0) + 1;
+        }
+      });
+
+      const repartitionFaritra = Object.entries(faritarCounts)
+        .map(([faritra, count]) => ({ 
+          name: faritra.charAt(0).toUpperCase() + faritra.slice(1), 
+          value: count 
+        }));
+
+      // Statistiques par sampana
+      const { data: sampanaData } = await supabase
+        .from('adherents')
+        .select(`
+          sampana (nom_sampana)
+        `);
+
+      const sampanaCounts: { [key: string]: number } = {};
+      sampanaData?.forEach(item => {
+        if (item.sampana?.nom_sampana) {
+          sampanaCounts[item.sampana.nom_sampana] = (sampanaCounts[item.sampana.nom_sampana] || 0) + 1;
+        }
+      });
+
+      const sampanaStats = Object.entries(sampanaCounts)
+        .map(([sampana, count]) => ({ sampana, count }))
+        .sort((a, b) => b.count - a.count);
 
       // Statistiques par quartier
       const { data: quartierData } = await supabase
@@ -99,8 +167,12 @@ export default function Statistiques() {
         totalAdherents: totalAdherents || 0,
         nouveauxMembres: nouveauxMembres || 0,
         groupesActifs: groupesActifs || 0,
+        mpandrayTotal: mpandrayTotal || 0,
         repartitionGenre,
+        repartitionEtatCivil,
+        repartitionFaritra,
         quartierStats,
+        sampanaStats,
         monthlyStats
       });
     } catch (error) {
@@ -188,6 +260,19 @@ export default function Statistiques() {
 
       <div className="grid gap-6 md:grid-cols-2">
         {/* Répartition par genre */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Mpandray</CardTitle>
+            <UserCheck className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.mpandrayTotal}</div>
+            <p className="text-xs text-muted-foreground">
+              Membres Mpandray
+            </p>
+          </CardContent>
+        </Card>
+
         <Card>
           <CardHeader>
             <CardTitle>Répartition par genre</CardTitle>

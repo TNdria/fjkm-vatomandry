@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Checkbox } from '@/components/ui/checkbox';
 import { CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -24,6 +25,15 @@ interface Adherent {
   telephone: string;
   email: string;
   fonction_eglise: string;
+  etat_civil: string | null;
+  mpandray: boolean;
+  faritra: string | null;
+  sampana_id: string | null;
+}
+
+interface Sampana {
+  id_sampana: string;
+  nom_sampana: string;
 }
 
 interface EditAdherentDialogProps {
@@ -38,12 +48,27 @@ export function EditAdherentDialog({ adherent, open, onClose, onAdherentUpdated,
   const [loading, setLoading] = useState(false);
   const [dateNaissance, setDateNaissance] = useState<Date | undefined>();
   const [selectedGroupes, setSelectedGroupes] = useState<string[]>([]);
+  const [sampanas, setSampanas] = useState<Sampana[]>([]);
+  const [mpandray, setMpandray] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
+    const fetchSampanas = async () => {
+      const { data, error } = await supabase
+        .from("sampana")
+        .select("id_sampana, nom_sampana")
+        .order("nom_sampana");
+      
+      if (!error && data) {
+        setSampanas(data);
+      }
+    };
+
     if (adherent && open) {
       setDateNaissance(adherent.date_naissance ? new Date(adherent.date_naissance) : undefined);
+      setMpandray(adherent.mpandray || false);
       fetchAdherentGroupes();
+      fetchSampanas();
     }
   }, [adherent, open]);
 
@@ -82,7 +107,11 @@ export function EditAdherentDialog({ adherent, open, onClose, onAdherentUpdated,
         telephone: formData.get('telephone') as string || null,
         email: formData.get('email') as string || null,
         fonction_eglise: formData.get('fonction_eglise') as string || null,
-      };
+        etat_civil: (formData.get('etat_civil') as string) || null,
+        mpandray: mpandray,
+        faritra: (formData.get('faritra') as string) || null,
+        sampana_id: (formData.get('sampana_id') as string) || null,
+      } as any;
 
       // Update adherent
       const { error: adherentError } = await supabase
