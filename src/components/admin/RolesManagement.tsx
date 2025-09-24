@@ -72,12 +72,6 @@ export function RolesManagement() {
           icon: UserCircle,
           color: 'secondary'
         },
-        {
-          role: 'UTILISATEUR',
-          description: 'Accès de base en lecture seule aux données des adhérents (déprécié - utilisez MEMBRE)',
-          icon: User,
-          color: 'secondary'
-        }
       ];
 
       const stats = roleDefinitions.map(def => ({
@@ -225,19 +219,6 @@ export function RolesManagement() {
                     <li>Consultation de son profil personnel</li>
                     <li>Visualisation de ses contributions</li>
                     <li>Téléchargement de sa carte de membre</li>
-                  </ul>
-                </div>
-              </div>
-              
-              <div className="flex items-start gap-3">
-                <Badge variant="secondary">UTILISATEUR (déprécié)</Badge>
-                <div className="text-sm">
-                  <strong>Permissions de base :</strong>
-                  <ul className="list-disc list-inside mt-1 text-muted-foreground">
-                    <li>Consultation des adhérents</li>
-                    <li>Consultation des groupes</li>
-                    <li>Accès aux statistiques de base</li>
-                    <li><em>Note: Ce rôle a été remplacé par MEMBRE</em></li>
                   </ul>
                 </div>
               </div>
