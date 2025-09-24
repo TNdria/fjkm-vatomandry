@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import jsPDF from 'jspdf';
 import QRCode from 'qrcode';
+import fjkmLogo from '@/assets/fjkm-logo.png';
 
 interface Adherent {
   id_adherent: string;
@@ -62,31 +63,34 @@ export const CardGenerator = () => {
       pdf.setFillColor(41, 128, 185); // Bleu FJKM
       pdf.rect(0, 0, 85.6, 53.98, 'F');
 
+      // Ajouter le logo FJKM
+      pdf.addImage(fjkmLogo, 'PNG', 5, 5, 12, 12);
+
       // En-tête FJKM
       pdf.setTextColor(255, 255, 255);
-      pdf.setFontSize(12);
+      pdf.setFontSize(11);
       pdf.setFont(undefined, 'bold');
-      pdf.text('FJKM VATOMANDRY', 5, 8);
+      pdf.text('FJKM VATOMANDRY', 20, 10);
       
-      pdf.setFontSize(8);
+      pdf.setFontSize(7);
       pdf.setFont(undefined, 'normal');
-      pdf.text('Fiangonan\'i Jesosy Kristy eto Madagasikara', 5, 13);
+      pdf.text('Fiangonan\'i Jesosy Kristy eto Madagasikara', 20, 15);
 
       // Ligne de séparation
       pdf.setLineWidth(0.5);
       pdf.setDrawColor(255, 255, 255);
-      pdf.line(5, 16, 80, 16);
+      pdf.line(5, 19, 80, 19);
 
       // Informations de l'adhérent
       pdf.setTextColor(255, 255, 255);
       pdf.setFontSize(10);
       pdf.setFont(undefined, 'bold');
-      pdf.text(`${adherent.nom} ${adherent.prenom}`, 5, 23);
+      pdf.text(`${adherent.nom} ${adherent.prenom}`, 5, 26);
 
       pdf.setFontSize(8);
       pdf.setFont(undefined, 'normal');
       
-      let yPosition = 28;
+      let yPosition = 31;
       if (adherent.fonction_eglise) {
         pdf.text(`Fonction: ${adherent.fonction_eglise}`, 5, yPosition);
         yPosition += 4;
@@ -192,29 +196,32 @@ export const CardGenerator = () => {
         pdf.setFillColor(41, 128, 185);
         pdf.rect(x, y, cardWidth, cardHeight, 'F');
 
+        // Logo FJKM
+        pdf.addImage(fjkmLogo, 'PNG', x + 2, y + 2, 8, 8);
+
         // En-tête
         pdf.setTextColor(255, 255, 255);
-        pdf.setFontSize(8);
-        pdf.setFont(undefined, 'bold');
-        pdf.text('FJKM VATOMANDRY', x + 2, y + 6);
-        
-        pdf.setFontSize(6);
-        pdf.setFont(undefined, 'normal');
-        pdf.text('Fiangonan\'i Jesosy Kristy eto Madagasikara', x + 2, y + 10);
-
-        // Nom
         pdf.setFontSize(7);
         pdf.setFont(undefined, 'bold');
-        pdf.text(`${adherent.nom} ${adherent.prenom}`, x + 2, y + 18);
-
-        // Informations
+        pdf.text('FJKM VATOMANDRY', x + 12, y + 6);
+        
         pdf.setFontSize(5);
         pdf.setFont(undefined, 'normal');
+        pdf.text('Fiangonan\'i Jesosy Kristy eto Madagasikara', x + 12, y + 9);
+
+      // Nom
+      pdf.setFontSize(6);
+      pdf.setFont(undefined, 'bold');
+      pdf.text(`${adherent.nom} ${adherent.prenom}`, x + 2, y + 15);
+
+        // Informations
+        pdf.setFontSize(4);
+        pdf.setFont(undefined, 'normal');
         if (adherent.fonction_eglise) {
-          pdf.text(`Fonction: ${adherent.fonction_eglise}`, x + 2, y + 23);
+          pdf.text(`Fonction: ${adherent.fonction_eglise}`, x + 2, y + 19);
         }
         if (adherent.quartier) {
-          pdf.text(`Quartier: ${adherent.quartier}`, x + 2, y + 27);
+          pdf.text(`Quartier: ${adherent.quartier}`, x + 2, y + 22);
         }
 
         // QR Code

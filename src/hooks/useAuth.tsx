@@ -126,18 +126,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!data) {
         const { error: insertError } = await supabase
           .from('user_roles')
-          .insert({ user_id: userId, role: 'UTILISATEUR' });
+          .insert({ user_id: userId, role: 'MEMBRE' });
         
         if (insertError) {
           console.error('Error creating default role:', insertError);
         }
-        setUserRole('UTILISATEUR');
+        setUserRole('MEMBRE');
       } else {
         setUserRole(data.role);
       }
     } catch (error) {
       console.error('Error fetching user role:', error);
-      setUserRole('UTILISATEUR'); // Default role
+      setUserRole('MEMBRE'); // Default role
     }
   };
 

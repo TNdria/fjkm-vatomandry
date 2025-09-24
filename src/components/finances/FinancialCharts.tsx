@@ -64,7 +64,13 @@ export const FinancialCharts = ({ detailed = false }: FinancialChartsProps) => {
         const key = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
         
         if (monthlyStats[key]) {
-          monthlyStats[key][item.type as keyof typeof monthlyStats[typeof key]] += item.montant;
+          if (item.type === 'dime') {
+            monthlyStats[key].dimes += item.montant;
+          } else if (item.type === 'offrande') {
+            monthlyStats[key].offrandes += item.montant;
+          } else if (item.type === 'don') {
+            monthlyStats[key].dons += item.montant;
+          }
           monthlyStats[key].total += item.montant;
         }
       });
@@ -96,7 +102,13 @@ export const FinancialCharts = ({ detailed = false }: FinancialChartsProps) => {
 
       const pieStats = { dimes: 0, offrandes: 0, dons: 0 };
       pieDataRaw?.forEach(item => {
-        pieStats[item.type as keyof typeof pieStats] += item.montant;
+        if (item.type === 'dime') {
+          pieStats.dimes += item.montant;
+        } else if (item.type === 'offrande') {
+          pieStats.offrandes += item.montant;
+        } else if (item.type === 'don') {
+          pieStats.dons += item.montant;
+        }
       });
 
       const pieArray: PieData[] = [

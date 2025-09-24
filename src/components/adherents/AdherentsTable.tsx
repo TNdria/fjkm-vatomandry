@@ -20,6 +20,7 @@ import { fr } from 'date-fns/locale';
 import QRCode from 'qrcode';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import fjkmLogo from '@/assets/fjkm-logo.png';
 
 interface Adherent {
   id_adherent: string;
@@ -236,6 +237,7 @@ export function AdherentsTable({ onEditAdherent, refreshTrigger }: AdherentsTabl
       cardDiv.innerHTML = `
         <div style="border: 2px solid #1a1a1a; border-radius: 12px; padding: 24px; background: linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%);">
           <div style="text-align: center; margin-bottom: 20px;">
+            <img src="${fjkmLogo}" alt="Logo FJKM" style="width: 40px; height: 40px; margin-bottom: 8px;" />
             <h2 style="margin: 0; color: #1a1a1a; font-size: 24px; font-weight: bold;">FJKM VATOMANDRY</h2>
             <p style="margin: 4px 0; color: #666; font-size: 14px;">Carte de Membre</p>
           </div>
@@ -350,21 +352,24 @@ export function AdherentsTable({ onEditAdherent, refreshTrigger }: AdherentsTabl
         pdf.setLineWidth(0.5);
         pdf.roundedRect(x, y, cardWidth, cardHeight, 3, 3);
 
-        // Add content
-        pdf.setFontSize(12);
-        pdf.setFont('helvetica', 'bold');
-        pdf.text('FJKM VATOMANDRY', x + cardWidth / 2, y + 8, { align: 'center' });
-        
-        pdf.setFontSize(8);
-        pdf.setFont('helvetica', 'normal');
-        pdf.text('Carte de Membre', x + cardWidth / 2, y + 13, { align: 'center' });
+        // Add logo
+        pdf.addImage(fjkmLogo, 'PNG', x + 5, y + 3, 12, 12);
 
-        pdf.setFontSize(9);
+        // Add content
+        pdf.setFontSize(10);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text('FJKM VATOMANDRY', x + 20, y + 9);
+        
+        pdf.setFontSize(7);
+        pdf.setFont('helvetica', 'normal');
+        pdf.text('Carte de Membre', x + 20, y + 13);
+
+        pdf.setFontSize(8);
         pdf.text(`Nom: ${adherent.nom}`, x + 5, y + 22);
-        pdf.text(`Prénom: ${adherent.prenom}`, x + 5, y + 27);
-        pdf.text(`Fonction: ${adherent.fonction_eglise || 'Membre'}`, x + 5, y + 32);
-        pdf.text(`Quartier: ${adherent.quartier || 'N/A'}`, x + 5, y + 37);
-        pdf.text(`Inscrit: ${format(new Date(adherent.date_inscription), 'dd/MM/yyyy')}`, x + 5, y + 42);
+        pdf.text(`Prénom: ${adherent.prenom}`, x + 5, y + 26);
+        pdf.text(`Fonction: ${adherent.fonction_eglise || 'Membre'}`, x + 5, y + 30);
+        pdf.text(`Quartier: ${adherent.quartier || 'N/A'}`, x + 5, y + 34);
+        pdf.text(`Inscrit: ${format(new Date(adherent.date_inscription), 'dd/MM/yyyy')}`, x + 5, y + 38);
 
         // Add QR code
         pdf.addImage(qrCodeDataUrl, 'PNG', x + cardWidth - 25, y + 20, 20, 20);

@@ -15,7 +15,7 @@ interface UserProfile {
   user_id: string;
   username: string;
   created_at: string;
-  role: 'ADMIN' | 'RESPONSABLE' | 'UTILISATEUR' | 'SECRETAIRE' | 'TRESORIER' | 'MEMBRE';
+  role: 'ADMIN' | 'RESPONSABLE' | 'MEMBRE' | 'SECRETAIRE' | 'TRESORIER';
   email?: string;
 }
 
@@ -51,7 +51,7 @@ export function UsersManagement() {
       
       const formattedUsers: UserProfile[] = profilesData?.map(user => ({
         ...user,
-        role: (rolesMap.get(user.user_id) || 'UTILISATEUR') as UserProfile['role']
+        role: (rolesMap.get(user.user_id) || 'MEMBRE') as UserProfile['role']
       })) || [];
 
       setUsers(formattedUsers);
@@ -217,7 +217,6 @@ export function UsersManagement() {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="UTILISATEUR">UTILISATEUR</SelectItem>
                           <SelectItem value="MEMBRE">MEMBRE</SelectItem>
                           <SelectItem value="SECRETAIRE">SECRÉTAIRE</SelectItem>
                           <SelectItem value="TRESORIER">TRÉSORIER</SelectItem>
