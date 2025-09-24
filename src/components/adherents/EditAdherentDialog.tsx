@@ -286,12 +286,80 @@ export function EditAdherentDialog({ adherent, open, onClose, onAdherentUpdated,
 
             <div className="space-y-2">
               <Label htmlFor="fonction_eglise">Fonction dans l'église</Label>
-              <Input 
-                id="fonction_eglise" 
-                name="fonction_eglise" 
-                defaultValue={adherent.fonction_eglise || ''}
-                className="transition-smooth" 
-              />
+              <Select name="fonction_eglise" defaultValue={adherent.fonction_eglise || ''}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Sélectionner une fonction" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Pasteur">Pasteur</SelectItem>
+                  <SelectItem value="Tresorier">Trésorier</SelectItem>
+                  <SelectItem value="Secretaire">Secrétaire</SelectItem>
+                  <SelectItem value="Diakona">Diacre</SelectItem>
+                  <SelectItem value="Loholona">Ancien</SelectItem>
+                  <SelectItem value="Membre">Membre</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="etat_civil">État civil</Label>
+              <Select name="etat_civil" defaultValue={adherent.etat_civil || ''}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Sélectionner l'état civil" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="celibataire">Célibataire</SelectItem>
+                  <SelectItem value="marie">Marié(e)</SelectItem>
+                  <SelectItem value="veuf">Veuf/Veuve</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="faritra">Faritra</Label>
+              <Select name="faritra" defaultValue={adherent.faritra || ''}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Sélectionner le faritra" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="voalohany">Voalohany</SelectItem>
+                  <SelectItem value="faharoa">Faharoa</SelectItem>
+                  <SelectItem value="fahatelo">Fahatelo</SelectItem>
+                  <SelectItem value="fahefatra">Fahefatra</SelectItem>
+                  <SelectItem value="fahadimy">Fahadimy</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="sampana_id">Sampana</Label>
+              <Select name="sampana_id" defaultValue={adherent.sampana_id || ''}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Sélectionner un sampana" />
+                </SelectTrigger>
+                <SelectContent>
+                  {sampanas.map((sampana) => (
+                    <SelectItem key={sampana.id_sampana} value={sampana.id_sampana}>
+                      {sampana.nom_sampana}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2 flex items-center">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="mpandray"
+                  checked={mpandray}
+                  onCheckedChange={(checked) => setMpandray(checked as boolean)}
+                />
+                <Label htmlFor="mpandray">Mpandray</Label>
+              </div>
             </div>
           </div>
 

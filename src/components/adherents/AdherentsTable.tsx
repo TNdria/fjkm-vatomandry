@@ -33,6 +33,13 @@ interface Adherent {
   email: string;
   fonction_eglise: string;
   date_inscription: string;
+  etat_civil: string | null;
+  mpandray: boolean;
+  faritra: string | null;
+  sampana_id: string | null;
+  sampana?: {
+    nom_sampana: string;
+  };
 }
 
 interface AdherentsTableProps {
@@ -47,7 +54,10 @@ export function AdherentsTable({ onEditAdherent, refreshTrigger }: AdherentsTabl
   const [searchTerm, setSearchTerm] = useState('');
   const [sexeFilter, setSexeFilter] = useState('tous');
   const [quartierFilter, setQuartierFilter] = useState('tous');
+  const [mpandrayFilter, setMpandrayFilter] = useState('tous');
+  const [faritraFilter, setFaritraFilter] = useState('tous');
   const [quartiers, setQuartiers] = useState<string[]>([]);
+  const [faritras, setFaritras] = useState<string[]>([]);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -56,26 +66,37 @@ export function AdherentsTable({ onEditAdherent, refreshTrigger }: AdherentsTabl
 
   useEffect(() => {
     filterAdherents();
-  }, [adherents, searchTerm, sexeFilter, quartierFilter]);
+  }, [adherents, searchTerm, sexeFilter, quartierFilter, mpandrayFilter, faritraFilter]);
 
   const fetchAdherents = async () => {
     try {
       setLoading(true);
       const { data, error } = await supabase
         .from('adherents')
-        .select('*')
+        .select(`
+          *,
+          sampana (
+            nom_sampana
+          )
+        `)
         .order('nom');
 
       if (error) throw error;
 
       setAdherents(data || []);
       
-      // Extract unique quartiers
+      // Extract unique quartiers and faritras
       const uniqueQuartiers = [...new Set((data || [])
         .map(a => a.quartier)
         .filter(Boolean)
       )].sort();
       setQuartiers(uniqueQuartiers);
+      
+      const uniqueFaritras = [...new Set((data || [])
+        .map(a => a.faritra)
+        .filter(Boolean)
+      )].sort();
+      setFaritras(uniqueFaritras);
     } catch (error: any) {
       toast({
         title: "Erreur",
@@ -105,6 +126,16 @@ export function AdherentsTable({ onEditAdherent, refreshTrigger }: AdherentsTabl
 
     if (quartierFilter && quartierFilter !== 'tous') {
       filtered = filtered.filter(adherent => adherent.quartier === quartierFilter);
+    }
+
+    if (mpandrayFilter && mpandrayFilter !== 'tous') {
+      filtered = filtered.filter(adherent => 
+        mpandrayFilter === 'oui' ? adherent.mpandray : !adherent.mpandray
+      );
+    }
+
+    if (faritraFilter && faritraFilter !== 'tous') {
+      filtered = filtered.filter(adherent => adherent.faritra === faritraFilter);
     }
 
     setFilteredAdherents(filtered);
@@ -139,7 +170,7 @@ export function AdherentsTable({ onEditAdherent, refreshTrigger }: AdherentsTabl
   };
 
   const exportToCSV = () => {
-    const headers = ['Nom', 'Prénom', 'Sexe', 'Date de naissance', 'Adresse', 'Quartier', 'Téléphone', 'Email', 'Fonction', 'Date d\'inscription'];
+    const headers = ['Nom', 'Prénom', 'Sexe', 'Date de naissance', 'Adresse', 'Quartier', 'Téléphone', 'Email', 'Fonction', 'État civil', 'Mpandray', 'Faritra', 'Sampana', 'Date d\'inscription'];
     const csvContent = [
       headers.join(','),
       ...filteredAdherents.map(adherent => [
@@ -152,6 +183,10 @@ export function AdherentsTable({ onEditAdherent, refreshTrigger }: AdherentsTabl
         adherent.telephone || '',
         adherent.email || '',
         `"${adherent.fonction_eglise || ''}"`,
+        `"${adherent.etat_civil || ''}"`,
+        adherent.mpandray ? 'Oui' : 'Non',
+        `"${adherent.faritra || ''}"`,
+        `"${adherent.sampana?.nom_sampana || ''}"`,
         adherent.date_inscription
       ].join(','))
     ].join('\n');
@@ -404,6 +439,31 @@ export function AdherentsTable({ onEditAdherent, refreshTrigger }: AdherentsTabl
               ))}
             </SelectContent>
           </Select>
+
+          <Select value={mpandrayFilter} onValueChange={setMpandrayFilter}>
+            <SelectTrigger className="w-32">
+              <SelectValue placeholder="Mpandray" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="tous">Tous</SelectItem>
+              <SelectItem value="oui">Mpandray</SelectItem>
+              <SelectItem value="non">Non Mpandray</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select value={faritraFilter} onValueChange={setFaritraFilter}>
+            <SelectTrigger className="w-32">
+              <SelectValue placeholder="Faritra" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="tous">Tous</SelectItem>
+              {faritras.map((faritra) => (
+                <SelectItem key={faritra} value={faritra}>
+                  {faritra}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="flex gap-2">
@@ -424,6 +484,7 @@ export function AdherentsTable({ onEditAdherent, refreshTrigger }: AdherentsTabl
         <span>Affichés: {filteredAdherents.length}</span>
         <span>Hommes: {filteredAdherents.filter(a => a.sexe === 'M').length}</span>
         <span>Femmes: {filteredAdherents.filter(a => a.sexe === 'F').length}</span>
+        <span>Mpandray: {filteredAdherents.filter(a => a.mpandray).length}</span>
       </div>
 
       {/* Table */}
@@ -436,8 +497,10 @@ export function AdherentsTable({ onEditAdherent, refreshTrigger }: AdherentsTabl
               <TableHead>Sexe</TableHead>
               <TableHead>Quartier</TableHead>
               <TableHead>Téléphone</TableHead>
-              <TableHead>Email</TableHead>
               <TableHead>Fonction</TableHead>
+              <TableHead>Mpandray</TableHead>
+              <TableHead>Faritra</TableHead>
+              <TableHead>Sampana</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -453,8 +516,14 @@ export function AdherentsTable({ onEditAdherent, refreshTrigger }: AdherentsTabl
                 </TableCell>
                 <TableCell>{adherent.quartier || '-'}</TableCell>
                 <TableCell>{adherent.telephone || '-'}</TableCell>
-                <TableCell>{adherent.email || '-'}</TableCell>
                 <TableCell>{adherent.fonction_eglise || '-'}</TableCell>
+                <TableCell>
+                  <Badge variant={adherent.mpandray ? 'default' : 'secondary'}>
+                    {adherent.mpandray ? 'Oui' : 'Non'}
+                  </Badge>
+                </TableCell>
+                <TableCell>{adherent.faritra || '-'}</TableCell>
+                <TableCell>{adherent.sampana?.nom_sampana || '-'}</TableCell>
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
