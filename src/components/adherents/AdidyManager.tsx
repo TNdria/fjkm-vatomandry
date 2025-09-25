@@ -6,6 +6,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Calendar, DollarSign, Users, TrendingUp } from "lucide-react";
+import { QRScanner } from "./QRScanner";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -163,6 +164,11 @@ export function AdidyManager() {
         <p className="text-muted-foreground">
           Suivi mensuel des cotisations des Mpandray
         </p>
+      </div>
+
+      {/* Scanner QR Code */}
+      <div className="flex justify-end">
+        <QRScanner />
       </div>
 
       {/* Sélecteur de période */}
