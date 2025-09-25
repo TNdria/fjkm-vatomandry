@@ -48,63 +48,65 @@ export function QRScanner({ onPaymentSuccess }: { onPaymentSuccess?: () => void 
     };
   }, []);
 
-  const startScanning = async () => {
-    if (!videoRef.current) return;
+  // Nouvelle logique : startScanning ne fait que setIsScanning(true)
+  const startScanning = () => {
+    setIsScanning(true);
+  };
 
-    try {
-      setIsScanning(true);
-      
-      // Vérifier les permissions de caméra
-      const hasCamera = await QrScanner.hasCamera();
-      if (!hasCamera) {
+  // Quand isScanning passe à true, on lance le scan (la balise <video> est alors présente)
+  useEffect(() => {
+    const runScanner = async () => {
+      if (!isScanning || !videoRef.current) return;
+      try {
+        // Vérifier les permissions de caméra
+        const hasCamera = await QrScanner.hasCamera();
+        if (!hasCamera) {
+          toast({
+            title: "Caméra non disponible",
+            description: "Aucune caméra n'a été détectée sur cet appareil",
+            variant: "destructive",
+          });
+          setIsScanning(false);
+          return;
+        }
+        if (qrScannerRef.current) {
+          qrScannerRef.current.destroy();
+        }
+        qrScannerRef.current = new QrScanner(
+          videoRef.current,
+          (result) => {
+            console.log("Résultat du scan:", result.data);
+            handleScanResult(result.data);
+          },
+          {
+            highlightScanRegion: true,
+            highlightCodeOutline: true,
+            preferredCamera: 'environment'
+          }
+        );
+        await qrScannerRef.current.start();
+        console.log("Scanner QR démarré avec succès");
+      } catch (error) {
+        console.error("Erreur lors du démarrage du scanner:", error);
+        let errorMessage = "Impossible d'accéder à la caméra";
+        if (error instanceof Error) {
+          if (error.name === 'NotAllowedError') {
+            errorMessage = "Accès à la caméra refusé. Veuillez autoriser l'accès à la caméra dans les paramètres.";
+          } else if (error.name === 'NotFoundError') {
+            errorMessage = "Aucune caméra trouvée sur cet appareil";
+          }
+        }
         toast({
-          title: "Caméra non disponible",
-          description: "Aucune caméra n'a été détectée sur cet appareil",
+          title: "Erreur de caméra",
+          description: errorMessage,
           variant: "destructive",
         });
         setIsScanning(false);
-        return;
       }
-      
-      if (qrScannerRef.current) {
-        qrScannerRef.current.destroy();
-      }
-
-      qrScannerRef.current = new QrScanner(
-        videoRef.current,
-        (result) => {
-          console.log("Résultat du scan:", result.data);
-          handleScanResult(result.data);
-        },
-        {
-          highlightScanRegion: true,
-          highlightCodeOutline: true,
-          preferredCamera: 'environment' // Utiliser la caméra arrière si disponible
-        }
-      );
-
-      await qrScannerRef.current.start();
-      console.log("Scanner QR démarré avec succès");
-    } catch (error) {
-      console.error("Erreur lors du démarrage du scanner:", error);
-      let errorMessage = "Impossible d'accéder à la caméra";
-      
-      if (error instanceof Error) {
-        if (error.name === 'NotAllowedError') {
-          errorMessage = "Accès à la caméra refusé. Veuillez autoriser l'accès à la caméra dans les paramètres.";
-        } else if (error.name === 'NotFoundError') {
-          errorMessage = "Aucune caméra trouvée sur cet appareil";
-        }
-      }
-      
-      toast({
-        title: "Erreur de caméra",
-        description: errorMessage,
-        variant: "destructive",
-      });
-      setIsScanning(false);
-    }
-  };
+    };
+    runScanner();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isScanning]);
 
   const stopScanning = () => {
     if (qrScannerRef.current) {
@@ -247,10 +249,14 @@ export function QRScanner({ onPaymentSuccess }: { onPaymentSuccess?: () => void 
     setPaymentAmount(500);
   };
 
-  const handleDialogClose = () => {
-    setIsOpen(false);
-    stopScanning();
-    resetScan();
+
+  // Corrige la gestion d'ouverture/fermeture du Dialog
+  const handleDialogClose = (open: boolean) => {
+    setIsOpen(open);
+    if (!open) {
+      stopScanning();
+      resetScan();
+    }
   };
 
   console.log("QRScanner rendering button");
@@ -285,6 +291,8 @@ export function QRScanner({ onPaymentSuccess }: { onPaymentSuccess?: () => void 
                 <video
                   ref={videoRef}
                   className="w-full h-64 bg-black rounded-lg object-cover"
+                  autoPlay
+                  muted
                 />
                 <Button onClick={stopScanning} variant="outline" className="w-full">
                   Arrêter le scan
