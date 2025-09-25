@@ -19,36 +19,23 @@ interface AddAdherentDialogProps {
   groupes: any[];
 }
 
-interface Sampana {
-  id_sampana: string;
-  nom_sampana: string;
-}
 
 export function AddAdherentDialog({ onAdherentAdded, groupes }: AddAdherentDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [dateNaissance, setDateNaissance] = useState<Date | undefined>();
   const [selectedGroupes, setSelectedGroupes] = useState<string[]>([]);
-  const [sampanas, setSampanas] = useState<Sampana[]>([]);
   const [mpandray, setMpandray] = useState(false);
+  const [selectedFaritra, setSelectedFaritra] = useState<string>('');
   const { toast } = useToast();
 
-  useEffect(() => {
-    const fetchSampanas = async () => {
-      const { data, error } = await supabase
-        .from("sampana")
-        .select("id_sampana, nom_sampana")
-        .order("nom_sampana");
-      
-      if (!error && data) {
-        setSampanas(data);
-      }
-    };
-
-    if (open) {
-      fetchSampanas();
-    }
-  }, [open]);
+  const quartiersParFaritra = {
+    voalohany: ['Ambilakely', 'Lanijadona', 'Antantsaripaty', 'Antanambahiny'],
+    faharoa: ['Marofototra', 'Centre-Ville', 'Bemasoandro', 'Ampasimandrevo'],
+    fahatelo: ['Mangarivotra', 'Tanambao', 'Bazar'],
+    fahefatra: ['Ampandranety', 'Bazar', 'Ampasimazava'],
+    fahadimy: ['Vohitsara', 'Saint-Augustin']
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -105,7 +92,6 @@ export function AddAdherentDialog({ onAdherentAdded, groupes }: AddAdherentDialo
         etat_civil: (formData.get('etat_civil') as string) || null,
         mpandray: mpandray,
         faritra: (formData.get('faritra') as string) || null,
-        sampana_id: (formData.get('sampana_id') as string) || null,
       } as any;
 
       const { data: adherent, error: adherentError } = await supabase
@@ -145,6 +131,7 @@ export function AddAdherentDialog({ onAdherentAdded, groupes }: AddAdherentDialo
       setDateNaissance(undefined);
       setSelectedGroupes([]);
       setMpandray(false);
+      setSelectedFaritra('');
     } catch (error: any) {
       toast({
         title: "Erreur",
@@ -234,14 +221,45 @@ export function AddAdherentDialog({ onAdherentAdded, groupes }: AddAdherentDialo
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="quartier">Quartier</Label>
-              <Input id="quartier" name="quartier" className="transition-smooth" />
+              <Label htmlFor="faritra">Faritra</Label>
+              <Select 
+                name="faritra" 
+                value={selectedFaritra}
+                onValueChange={setSelectedFaritra}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Sélectionner le faritra" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="voalohany">Voalohany</SelectItem>
+                  <SelectItem value="faharoa">Faharoa</SelectItem>
+                  <SelectItem value="fahatelo">Fahatelo</SelectItem>
+                  <SelectItem value="fahefatra">Fahefatra</SelectItem>
+                  <SelectItem value="fahadimy">Fahadimy</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="telephone">Téléphone</Label>
-              <Input id="telephone" name="telephone" type="tel" className="transition-smooth" />
+              <Label htmlFor="quartier">Quartier</Label>
+              <Select name="quartier" disabled={!selectedFaritra}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Sélectionner le quartier" />
+                </SelectTrigger>
+                <SelectContent>
+                  {selectedFaritra && quartiersParFaritra[selectedFaritra as keyof typeof quartiersParFaritra]?.map((quartier) => (
+                    <SelectItem key={quartier} value={quartier}>
+                      {quartier}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="telephone">Téléphone</Label>
+            <Input id="telephone" name="telephone" type="tel" className="transition-smooth" />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -279,40 +297,6 @@ export function AddAdherentDialog({ onAdherentAdded, groupes }: AddAdherentDialo
                   <SelectItem value="celibataire">Célibataire</SelectItem>
                   <SelectItem value="marie">Marié(e)</SelectItem>
                   <SelectItem value="veuf">Veuf/Veuve</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="faritra">Faritra</Label>
-              <Select name="faritra">
-                <SelectTrigger>
-                  <SelectValue placeholder="Sélectionner le faritra" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="voalohany">Voalohany</SelectItem>
-                  <SelectItem value="faharoa">Faharoa</SelectItem>
-                  <SelectItem value="fahatelo">Fahatelo</SelectItem>
-                  <SelectItem value="fahefatra">Fahefatra</SelectItem>
-                  <SelectItem value="fahadimy">Fahadimy</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="sampana_id">Sampana</Label>
-              <Select name="sampana_id">
-                <SelectTrigger>
-                  <SelectValue placeholder="Sélectionner un sampana" />
-                </SelectTrigger>
-                <SelectContent>
-                  {sampanas.map((sampana) => (
-                    <SelectItem key={sampana.id_sampana} value={sampana.id_sampana}>
-                      {sampana.nom_sampana}
-                    </SelectItem>
-                  ))}
                 </SelectContent>
               </Select>
             </div>

@@ -8,7 +8,8 @@ import {
   Cross,
   LogOut,
   User,
-  DollarSign
+  DollarSign,
+  Church
 } from "lucide-react";
 import {
   Sidebar,
@@ -38,6 +39,12 @@ const navigationItems = [
     url: "/adherents",
     icon: Users,
     requiredRoles: ['ADMIN', 'RESPONSABLE', 'SECRETAIRE']
+  },
+  {
+    title: "Mpandray",
+    url: "/mpandray",
+    icon: Church,
+    requiredRoles: ['ADMIN', 'RESPONSABLE', 'TRESORIER']
   },
   {
     title: "Groupes",

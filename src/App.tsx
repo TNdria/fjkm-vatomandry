@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Adherents from "./pages/Adherents";
+import Mpandray from "./pages/Mpandray";
 import Groupes from "./pages/Groupes";
 import Statistiques from "./pages/Statistiques";
 import Finances from "./pages/Finances";
@@ -30,6 +31,7 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/dashboard" element={<Layout><Dashboard /></Layout>} />
             <Route path="/adherents" element={<Layout><Adherents /></Layout>} />
+            <Route path="/mpandray" element={<Layout><Mpandray /></Layout>} />
             <Route path="/groupes" element={<Layout><Groupes /></Layout>} />
             <Route path="/statistiques" element={<Layout><Statistiques /></Layout>} />
             <Route path="/finances" element={<Layout><Finances /></Layout>} />

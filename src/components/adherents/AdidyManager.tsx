@@ -41,6 +41,8 @@ export function AdidyManager() {
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [loading, setLoading] = useState(true);
+  const [showUnpaidOnly, setShowUnpaidOnly] = useState(false);
+  const [minAmount, setMinAmount] = useState(0);
   const { toast } = useToast();
 
   const months = [
@@ -51,6 +53,12 @@ export function AdidyManager() {
   useEffect(() => {
     fetchAdidyData();
   }, [selectedMonth, selectedYear]);
+
+  const filteredRecords = records.filter(record => {
+    if (showUnpaidOnly && record.paye) return false;
+    if (minAmount > 0 && record.montant < minAmount) return false;
+    return true;
+  });
 
   const fetchAdidyData = async () => {
     setLoading(true);
@@ -190,6 +198,28 @@ export function AdidyManager() {
               />
             </div>
           </div>
+          <div className="flex gap-4 mt-4">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="unpaidOnly"
+                checked={showUnpaidOnly}
+                onCheckedChange={(checked) => setShowUnpaidOnly(checked as boolean)}
+              />
+              <Label htmlFor="unpaidOnly">Afficher uniquement les non-payés</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Label htmlFor="minAmount">Montant minimum :</Label>
+              <Input
+                id="minAmount"
+                type="number"
+                value={minAmount}
+                onChange={(e) => setMinAmount(Number(e.target.value))}
+                placeholder="500"
+                className="w-24"
+              />
+              <span className="text-sm text-muted-foreground">Ar</span>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
@@ -246,7 +276,7 @@ export function AdidyManager() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {records.map((record) => (
+            {filteredRecords.map((record) => (
               <div
                 key={record.id}
                 className="flex items-center justify-between p-4 border rounded-lg"
@@ -284,6 +314,11 @@ export function AdidyManager() {
                 </div>
               </div>
             ))}
+            {filteredRecords.length === 0 && records.length > 0 && (
+              <p className="text-center text-muted-foreground py-8">
+                Aucun résultat ne correspond aux filtres sélectionnés
+              </p>
+            )}
             {records.length === 0 && (
               <p className="text-center text-muted-foreground py-8">
                 Aucun Mpandray trouvé pour cette période
