@@ -26,6 +26,7 @@ interface ScannedAdherent {
 }
 
 export function QRScanner({ onPaymentSuccess }: { onPaymentSuccess?: () => void }) {
+  console.log("QRScanner component rendered");
   const [isOpen, setIsOpen] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
   const [scannedAdherent, setScannedAdherent] = useState<ScannedAdherent | null>(null);
@@ -252,6 +253,8 @@ export function QRScanner({ onPaymentSuccess }: { onPaymentSuccess?: () => void 
     resetScan();
   };
 
+  console.log("QRScanner rendering button");
+  
   return (
     <Dialog open={isOpen} onOpenChange={handleDialogClose}>
       <DialogTrigger asChild>
