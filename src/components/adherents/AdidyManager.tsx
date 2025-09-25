@@ -168,7 +168,7 @@ export function AdidyManager() {
 
       {/* Scanner QR Code */}
       <div className="flex justify-end">
-        <QRScanner />
+        <QRScanner onPaymentSuccess={fetchAdidyData} />
       </div>
 
       {/* Sélecteur de période */}

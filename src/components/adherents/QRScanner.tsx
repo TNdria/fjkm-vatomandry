@@ -25,7 +25,7 @@ interface ScannedAdherent {
   };
 }
 
-export function QRScanner() {
+export function QRScanner({ onPaymentSuccess }: { onPaymentSuccess?: () => void }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
   const [scannedAdherent, setScannedAdherent] = useState<ScannedAdherent | null>(null);
@@ -53,6 +53,18 @@ export function QRScanner() {
     try {
       setIsScanning(true);
       
+      // Vérifier les permissions de caméra
+      const hasCamera = await QrScanner.hasCamera();
+      if (!hasCamera) {
+        toast({
+          title: "Caméra non disponible",
+          description: "Aucune caméra n'a été détectée sur cet appareil",
+          variant: "destructive",
+        });
+        setIsScanning(false);
+        return;
+      }
+      
       if (qrScannerRef.current) {
         qrScannerRef.current.destroy();
       }
@@ -60,20 +72,33 @@ export function QRScanner() {
       qrScannerRef.current = new QrScanner(
         videoRef.current,
         (result) => {
+          console.log("Résultat du scan:", result.data);
           handleScanResult(result.data);
         },
         {
           highlightScanRegion: true,
           highlightCodeOutline: true,
+          preferredCamera: 'environment' // Utiliser la caméra arrière si disponible
         }
       );
 
       await qrScannerRef.current.start();
+      console.log("Scanner QR démarré avec succès");
     } catch (error) {
       console.error("Erreur lors du démarrage du scanner:", error);
+      let errorMessage = "Impossible d'accéder à la caméra";
+      
+      if (error instanceof Error) {
+        if (error.name === 'NotAllowedError') {
+          errorMessage = "Accès à la caméra refusé. Veuillez autoriser l'accès à la caméra dans les paramètres.";
+        } else if (error.name === 'NotFoundError') {
+          errorMessage = "Aucune caméra trouvée sur cet appareil";
+        }
+      }
+      
       toast({
-        title: "Erreur",
-        description: "Impossible d'accéder à la caméra",
+        title: "Erreur de caméra",
+        description: errorMessage,
         variant: "destructive",
       });
       setIsScanning(false);
@@ -94,17 +119,29 @@ export function QRScanner() {
       // Le QR code contient l'ID de l'adhérent
       const adherentId = data.trim();
       
+      console.log("QR Code scanné:", adherentId);
+      
       // Vérifier que l'adhérent existe et est Mpandray
       const { data: adherent, error: adherentError } = await supabase
         .from('adherents')
         .select('id_adherent, nom, prenom, mpandray')
         .eq('id_adherent', adherentId)
-        .single();
+        .maybeSingle();
 
-      if (adherentError || !adherent) {
+      if (adherentError) {
+        console.error("Erreur Supabase:", adherentError);
+        toast({
+          title: "Erreur de base de données",
+          description: adherentError.message,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (!adherent) {
         toast({
           title: "Adhérent introuvable",
-          description: "L'adhérent scanné n'existe pas dans la base de données",
+          description: `L'adhérent avec l'ID "${adherentId}" n'existe pas dans la base de données`,
           variant: "destructive",
         });
         return;
@@ -177,6 +214,9 @@ export function QRScanner() {
         title: "Paiement enregistré",
         description: `Paiement de ${paymentAmount} Ar enregistré avec succès`,
       });
+
+      // Rafraîchir les données parent
+      onPaymentSuccess?.();
 
       // Mettre à jour l'état local
       setScannedAdherent(prev => prev ? {
